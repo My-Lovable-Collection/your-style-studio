@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -12,6 +12,7 @@ import {
   Italic,
   Plus,
   Minus,
+  Box,
 } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
 import { getProductById, patchPlacements } from "@/data/products";
 import { useCart, CustomDesign } from "@/context/CartContext";
 import { toast } from "sonner";
+import ProductModel3D from "@/components/3d/ProductModel3D";
 
 const fontFamilies = [
   { value: "Inter", label: "Inter" },
@@ -69,6 +71,7 @@ export default function CustomizePage() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
   const [scale, setScale] = useState(100);
+  const [view3D, setView3D] = useState(true);
 
   if (!product) {
     return (
@@ -183,66 +186,104 @@ export default function CustomizePage() {
             animate={{ opacity: 1, x: 0 }}
             className="relative"
           >
-            <div className="sticky top-24">
+          <div className="sticky top-24">
+              {/* 3D/2D Toggle */}
+              <div className="mb-4 flex justify-end">
+                <Button
+                  variant={view3D ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setView3D(!view3D)}
+                  className="gap-2"
+                >
+                  <Box className="h-4 w-4" />
+                  {view3D ? "3D View" : "2D View"}
+                </Button>
+              </div>
+              
               <div className="aspect-[3/4] overflow-hidden rounded-2xl border-2 border-dashed border-border bg-secondary">
                 <div className="relative h-full w-full">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-full w-full object-cover"
-                  />
-
-                  {/* Overlay for customization preview */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div
-                      className="flex flex-col items-center justify-center rounded-lg border-2 border-accent/30 bg-background/20 p-4 backdrop-blur-sm"
-                      style={{
-                        transform: `rotate(${rotation}deg) scale(${scale / 100})`,
-                        transition: "transform 0.2s ease-out",
-                      }}
+                  {view3D ? (
+                    <Suspense
+                      fallback={
+                        <div className="flex h-full w-full items-center justify-center">
+                          <div className="text-muted-foreground">Loading 3D model...</div>
+                        </div>
+                      }
                     >
-                      {customText && (
-                        <span
+                      <ProductModel3D
+                        productColor={product.colors[0] === "Black" ? "#1a1a1a" : product.colors[0] === "White" ? "#f5f5f5" : "#4a5568"}
+                        customText={customText}
+                        textColor={textColor}
+                        fontSize={fontSize}
+                        fontFamily={fontFamily}
+                        isBold={isBold}
+                        isItalic={isItalic}
+                        uploadedImage={uploadedImage}
+                        rotation={rotation}
+                        scale={scale}
+                      />
+                    </Suspense>
+                  ) : (
+                    <>
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+
+                      {/* Overlay for customization preview */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div
+                          className="flex flex-col items-center justify-center rounded-lg border-2 border-accent/30 bg-background/20 p-4 backdrop-blur-sm"
                           style={{
-                            fontFamily,
-                            fontSize: `${fontSize}px`,
-                            color: textColor,
-                            fontWeight: isBold ? "bold" : "normal",
-                            fontStyle: isItalic ? "italic" : "normal",
+                            transform: `rotate(${rotation}deg) scale(${scale / 100})`,
+                            transition: "transform 0.2s ease-out",
                           }}
-                          className="max-w-[200px] break-words text-center"
                         >
-                          {customText}
-                        </span>
-                      )}
+                          {customText && (
+                            <span
+                              style={{
+                                fontFamily,
+                                fontSize: `${fontSize}px`,
+                                color: textColor,
+                                fontWeight: isBold ? "bold" : "normal",
+                                fontStyle: isItalic ? "italic" : "normal",
+                              }}
+                              className="max-w-[200px] break-words text-center"
+                            >
+                              {customText}
+                            </span>
+                          )}
 
-                      {uploadedImage && (
-                        <img
-                          src={uploadedImage}
-                          alt="Custom upload"
-                          className="mt-2 max-h-32 max-w-32 object-contain"
-                        />
-                      )}
+                          {uploadedImage && (
+                            <img
+                              src={uploadedImage}
+                              alt="Custom upload"
+                              className="mt-2 max-h-32 max-w-32 object-contain"
+                            />
+                          )}
 
-                      {!customText && !uploadedImage && (
-                        <span className="text-muted-foreground">
-                          Your design preview
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                          {!customText && !uploadedImage && (
+                            <span className="text-muted-foreground">
+                              Your design preview
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
-              {/* Placement indicator */}
-              <div className="mt-4 text-center">
-                <span className="rounded-full bg-accent/10 px-4 py-2 text-sm font-medium text-accent">
-                  Placement:{" "}
-                  {productPlacements.find((p) => p.id === selectedPlacement)
-                    ?.label || "Select"}
-                </span>
-              </div>
+            {/* Placement indicator */}
+            <div className="mt-4 text-center">
+              <span className="rounded-full bg-accent/10 px-4 py-2 text-sm font-medium text-accent">
+                Placement:{" "}
+                {productPlacements.find((p) => p.id === selectedPlacement)
+                  ?.label || "Select"}
+              </span>
             </div>
+          </div>
           </motion.div>
 
           {/* Controls */}
