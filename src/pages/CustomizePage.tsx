@@ -122,11 +122,6 @@ export default function CustomizePage() {
   return (
     <Layout>
       <div className="container py-8 md:py-12">
-        {/* Back Button */}
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -456,6 +451,10 @@ export default function CustomizePage() {
 
             {/* Action Buttons */}
             <div className="flex gap-4 border-t border-border pt-6">
+              <Button variant="ghost" onClick={() => navigate(-1)}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
               <Button variant="outline" className="flex-1" onClick={handleReset}>
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Reset
