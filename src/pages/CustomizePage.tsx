@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getProductById, patchPlacements } from "@/data/products";
-import { useCart, CustomDesign } from "@/context/CartContext";
+import { CustomDesign } from "@/context/CartContext";
 import { toast } from "sonner";
 import ProductModel3D from "@/components/3d/ProductModel3D";
 
@@ -54,7 +54,7 @@ const textColors = [
 export default function CustomizePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  
 
   const product = getProductById(id || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -114,48 +114,9 @@ export default function CustomizePage() {
   };
 
   const handleSave = () => {
-    const designs: CustomDesign[] = [];
-
-    if (customText) {
-      designs.push({
-        text: customText,
-        textStyle: {
-          fontFamily,
-          fontSize,
-          color: textColor,
-          bold: isBold,
-          italic: isItalic,
-        },
-        placement: selectedPlacement,
-        position: { x: 50, y: 50 },
-        rotation,
-        scale: scale / 100,
-      });
-    }
-
-    if (uploadedImage) {
-      designs.push({
-        imageUrl: uploadedImage,
-        placement: selectedPlacement,
-        position: { x: 50, y: 50 },
-        rotation,
-        scale: scale / 100,
-      });
-    }
-
-    addToCart({
-      product,
-      quantity: 1,
-      selectedColor: product.colors[0],
-      selectedSize: product.sizes[0],
-      customDesigns: designs,
+    toast.success("Design saved!", {
+      description: "Your custom design has been saved successfully.",
     });
-
-    toast.success("Custom design added to cart!", {
-      description: "Your personalized item is ready for checkout.",
-    });
-
-    navigate("/cart");
   };
 
   return (
@@ -505,7 +466,7 @@ export default function CustomizePage() {
                 disabled={!customText && !uploadedImage}
               >
                 <Save className="mr-2 h-4 w-4" />
-                Save & Add to Cart
+                Save Design
               </Button>
             </div>
           </motion.div>
