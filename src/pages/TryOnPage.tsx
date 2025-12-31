@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Camera, CameraOff, Download, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Camera, CameraOff, Download, AlertTriangle, User } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { getProductById } from "@/data/products";
 import { toast } from "sonner";
-
+import HumanModel3D from "@/components/3d/HumanModel3D";
 export default function TryOnPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -18,6 +18,7 @@ export default function TryOnPage() {
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [showModel, setShowModel] = useState(false);
 
   const startCamera = useCallback(async () => {
     try {
@@ -33,6 +34,7 @@ export default function TryOnPage() {
       
       setStream(mediaStream);
       setCameraActive(true);
+      setShowModel(true); // Show 3D model when camera starts
     } catch (error: any) {
       console.error("Camera error:", error);
       if (error.name === "NotAllowedError") {
@@ -53,6 +55,7 @@ export default function TryOnPage() {
       setStream(null);
     }
     setCameraActive(false);
+    setShowModel(false);
   }, [stream]);
 
   const captureScreenshot = useCallback(() => {
@@ -144,35 +147,32 @@ export default function TryOnPage() {
             className="lg:col-span-2"
           >
             <div className="relative aspect-video overflow-hidden rounded-2xl border-2 border-border bg-secondary">
-              {cameraActive ? (
-                <>
+              {cameraActive && showModel ? (
+                <div className="relative h-full w-full">
+                  {/* Camera feed in small corner */}
                   <video
                     ref={videoRef}
                     autoPlay
                     playsInline
                     muted
-                    className="h-full w-full object-cover"
+                    className="absolute bottom-4 right-4 z-10 h-32 w-44 rounded-lg border-2 border-accent object-cover shadow-lg"
                     style={{ transform: "scaleX(-1)" }}
                   />
                   
-                  {/* Product Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div
-                      className="relative"
-                      style={{
-                        width: "40%",
-                        marginTop: "-5%",
-                      }}
-                    >
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-auto w-full object-contain opacity-75"
-                        style={{ transform: "scaleX(-1)" }}
-                      />
-                    </div>
-                  </div>
-                </>
+                  {/* 3D Human Model with product */}
+                  <Suspense
+                    fallback={
+                      <div className="flex h-full w-full items-center justify-center">
+                        <div className="text-muted-foreground">Loading 3D model...</div>
+                      </div>
+                    }
+                  >
+                    <HumanModel3D
+                      productImage={product.image}
+                      productColor={product.colors[0] === "Black" ? "#1a1a1a" : product.colors[0] === "White" ? "#f5f5f5" : "#4a5568"}
+                    />
+                  </Suspense>
+                </div>
               ) : (
                 <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                   {cameraError ? (
@@ -281,7 +281,7 @@ export default function TryOnPage() {
                 2
               </span>
               <p className="text-sm text-muted-foreground">
-                Position yourself in frame to see the clothing overlay
+                View the product on a 3D model while your camera shows in the corner
               </p>
             </li>
             <li className="flex gap-3">
