@@ -127,9 +127,14 @@ export default function CustomizePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="font-display text-3xl font-bold md:text-4xl">
-            Customize {product.name}
-          </h1>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="font-display text-3xl font-bold md:text-4xl">
+              Customize {product.name}
+            </h1>
+          </div>
           <p className="mt-2 text-muted-foreground">
             Add text, images, and adjust placement to create your unique design.
           </p>
