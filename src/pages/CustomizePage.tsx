@@ -2,7 +2,7 @@ import { useState, useRef, Suspense } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
+  X,
   Type,
   Image,
   RotateCcw,
@@ -122,23 +122,28 @@ export default function CustomizePage() {
   return (
     <Layout>
       <div className="container py-8 md:py-12">
-        {/* Back Button */}
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="font-display text-3xl font-bold md:text-4xl">
-            Customize {product.name}
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Add text, images, and adjust placement to create your unique design.
-          </p>
-        </motion.div>
+        {/* Header with Close Button */}
+        <div className="mb-6 flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="font-display text-3xl font-bold md:text-4xl">
+              Customize {product.name}
+            </h1>
+            <p className="mt-2 text-muted-foreground">
+              Add text, images, and adjust placement to create your unique design.
+            </p>
+          </motion.div>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigate(`/products/${product.id}`)}
+            className="shrink-0"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-2">
           {/* Preview Area */}
