@@ -17,6 +17,9 @@ export function Header() {
     { href: "/products?category=t-shirt", label: "T-Shirts" },
     { href: "/products?category=hoodie", label: "Hoodies" },
     { href: "/products?category=jacket", label: "Jackets" },
+    ...(isAuthenticated && user?.email?.toLowerCase().startsWith("admin")
+      ? [{ href: "/admin", label: "Admin" }]
+      : []),
   ];
 
   return (

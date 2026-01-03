@@ -4,11 +4,13 @@ interface User {
   id: string;
   email: string;
   name: string;
+  isAdmin: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
@@ -16,16 +18,20 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const checkIsAdmin = (email: string): boolean => {
+  return email.toLowerCase().startsWith("admin");
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulated login - replace with real auth
     if (email && password.length >= 6) {
       setUser({
         id: "1",
         email,
         name: email.split("@")[0],
+        isAdmin: checkIsAdmin(email),
       });
       return true;
     }
@@ -37,12 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     name: string
   ): Promise<boolean> => {
-    // Simulated signup - replace with real auth
     if (email && password.length >= 6 && name) {
       setUser({
         id: "1",
         email,
         name,
+        isAdmin: checkIsAdmin(email),
       });
       return true;
     }
@@ -58,6 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
+        isAdmin: user?.isAdmin ?? false,
         login,
         signup,
         logout,
