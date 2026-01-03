@@ -27,7 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getProductById, patchPlacements } from "@/data/products";
+import { getProductById } from "@/data/products";
+import { usePatchPlacements } from "@/context/PatchPlacementContext";
 import { CustomDesign } from "@/context/CartContext";
 import { toast } from "sonner";
 import ProductModel3D from "@/components/3d/ProductModel3D";
@@ -54,13 +55,14 @@ const textColors = [
 export default function CustomizePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+  const { getPublishedPlacementsForProduct } = usePatchPlacements();
 
   const product = getProductById(id || "");
+  const productPlacements = product ? getPublishedPlacementsForProduct(product.id) : [];
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedPlacement, setSelectedPlacement] = useState(
-    product?.patchPlacements[0] || ""
+    productPlacements[0]?.id || ""
   );
   const [customText, setCustomText] = useState("");
   const [fontSize, setFontSize] = useState(24);
@@ -85,10 +87,6 @@ export default function CustomizePage() {
       </Layout>
     );
   }
-
-  const productPlacements = patchPlacements.filter((p) =>
-    product.patchPlacements.includes(p.id as any)
-  );
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
