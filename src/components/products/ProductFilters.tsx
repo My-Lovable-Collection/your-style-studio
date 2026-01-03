@@ -1,7 +1,8 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { categories, patchPlacements } from "@/data/products";
+import { categories } from "@/data/products";
+import { usePatchPlacements } from "@/context/PatchPlacementContext";
 import { X } from "lucide-react";
 
 interface ProductFiltersProps {
@@ -19,6 +20,9 @@ export function ProductFilters({
   onPlacementChange,
   onClearFilters,
 }: ProductFiltersProps) {
+  const { getAllPlacementLabels } = usePatchPlacements();
+  const patchPlacements = getAllPlacementLabels();
+  
   const hasActiveFilters =
     selectedCategories.length > 0 || selectedPlacements.length > 0;
 
